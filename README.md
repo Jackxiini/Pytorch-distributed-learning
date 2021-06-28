@@ -48,7 +48,7 @@ Pytorch 中通过 `torch.distributed` 包提供分布式支持，包括 GPU 和 
 #### ①. 代码修改
 
 1.载入需要使用的package，其中`torch.multiprocessing`和`torch.distributed`为分布式所需要使用的包：
-```
+```python
 import os
 from datetime import datetime
 import argparse
