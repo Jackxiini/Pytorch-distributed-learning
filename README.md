@@ -11,11 +11,9 @@ Pytorch 1.x 的多机多卡计算模型并没有采用主流的 Parameter Server
 在 RingAllReduce 中，GPU 集群被组织成一个逻辑环，每个 GPU 只从左邻居接受数据、并发送数据给右邻居，即每次同步每个 GPU 只获得部分梯度更新，等一个完整的 Ring 完成，每个 GPU 都获得了完整的参数。通讯成本是系统中 GPU 之间最慢的连接决定的。
 
 原理图如下：
-![图片](http://bos.bj.bce-internal.sdns.baidu.com/agroup-bos-bj/bj-4a8f4ccb6d7c1099abbd168a8dbba1d12370ea8a)
-
-![图片](http://bos.bj.bce-internal.sdns.baidu.com/agroup-bos-bj/bj-641e6112b5bb1f332146f2e2763f9c2ce6b0356e)
-
-![图片](http://bos.bj.bce-internal.sdns.baidu.com/agroup-bos-bj/bj-b7eb6ee97dd909a9df0e56feb17b4fdeef0eed38)
+![bj-4a8f4ccb6d7c1099abbd168a8dbba1d12370ea8a](https://user-images.githubusercontent.com/35672492/123613396-f75f0d00-d835-11eb-9ad6-fddb6c34aa7c.png)
+![bj-641e6112b5bb1f332146f2e2763f9c2ce6b0356e](https://user-images.githubusercontent.com/35672492/123613407-fa59fd80-d835-11eb-9e09-72a04437fa47.png)
+![bj-b7eb6ee97dd909a9df0e56feb17b4fdeef0eed38](https://user-images.githubusercontent.com/35672492/123613424-fd54ee00-d835-11eb-89c9-4accee01a1b1.png)
 
 可见，五次迭代后，所有的GPU都更新了值。
 
@@ -59,7 +57,7 @@ import torch
 import torch.nn as nn
 import torch.distributed as dist
 ```
----
+
 2.写一个神经网络模型：
 ```
 class ConvNet(nn.Module):
@@ -84,7 +82,7 @@ class ConvNet(nn.Module):
         x = self.fc1(x)
         return x
 ```
----
+
 3.定义`main`函数：
 ```
 def main():
@@ -114,7 +112,7 @@ def main():
 
 然后，使用 `torch.multiprocessing` 分配任务，其中`train`为训练函数（见下一步），`nprocs`为分配的进程数，需要与本机 GPU 数一致。`args`为传入`train`函数的实参。本函数详情可见[官方文档](https://pytorch.org/docs/stable/multiprocessing.html)。
 
----
+
 
 4.接下来，定义训练函数`train`，其中需要添加部分代码以实现分布式训练：
 
@@ -202,13 +200,13 @@ def train(gpu, args):
 ```
 只打印每台机器 0 号 GPU 的日志，也可修改成只打印 master 节点的日志，即`global_rank = 0`的日志。
 
----
+
 5.最后：
 ```
 if __name__ == '__main__':
     main()
 ```
----
+
 #### ②. 运行脚本
 以两台机器，每台一卡为例，两台机器的控制台分别运行：
 ```
@@ -220,7 +218,7 @@ python mnist_dist_py.py -n 2 -g 1 -nr 1 --epochs 5
 export NCCL_DEBUG=INFO
 ```
 以下是 master 节点所在机器上的日志效果图：
-![图片](http://bos.bj.bce-internal.sdns.baidu.com/agroup-bos-bj/bj-03456703e376ecb8da6bd6666d3a06e56d1e0f7e)
+![image](https://user-images.githubusercontent.com/35672492/123612967-9afbed80-d835-11eb-9fe0-d0e55002b1ec.png)
 
 
 ### 二、使用 torch.distributed.launch 启动分布式
