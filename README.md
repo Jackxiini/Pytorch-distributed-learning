@@ -1,6 +1,6 @@
 # Pytorch分布式训练
 
-##结构介绍
+## 结构介绍
 
 Pytorch 1.x 的多机多卡计算模型并没有采用主流的 Parameter Server 结构，而是直接用了 Uber 的 Horovod 的形式，也是百度开源的 RingAllReduce 算法。
 
@@ -21,7 +21,7 @@ Pytorch 1.x 的多机多卡计算模型并没有采用主流的 Parameter Server
 
 Pytorch 中通过 `torch.distributed` 包提供分布式支持，包括 GPU 和 CPU 的分布式训练支持。Pytorch 分布式目前只支持 Linux。
 
-##基本概念
+## 基本概念
 以下是Pytorch分布式训练中常见的一些概念：
 
  - `group`: 进程组。默认情况下，只有一个进程组，一个 `job `即为一个组，也即一个 `world`。
@@ -33,7 +33,7 @@ Pytorch 中通过 `torch.distributed` 包提供分布式支持，包括 GPU 和 
 
  - `local_rank`: 进程内，GPU 编号，非显式参数，由 `torch.distributed.launch` 内部指定。比方说， `rank = 3`，`local_rank = 0` 表示第 3 个进程内的第 1 块 GPU。
 
-##使用流程
+## 使用流程
 
  1. 在使用 `distributed` 包的任何其他函数之前，需要使用 `init_process_group` 初始化进程组，同时初始化 `distributed` 包。
  2. 如果需要进行小组内集体通信，用 `new_group` 创建子分组。***非必须项***
@@ -42,10 +42,10 @@ Pytorch 中通过 `torch.distributed` 包提供分布式支持，包括 GPU 和 
  5. 使用启动工具 `torch.distributed.launch` 在每个主机上执行一次脚本，开始训练。也可在代码中使用 `torch.multiprocessing.spawn`并在每个主机上执行一次脚本，开始训练。
  6. 使用 `destory_process_group()` 销毁进程组。***非必须项***
  
-##案例演示
-###一、使用 torch.multiprocessing 启动分布式
+## 案例演示
+### 一、使用 torch.multiprocessing 启动分布式
 
-####①. 代码修改
+#### ①. 代码修改
 
 1.载入需要使用的package，其中`torch.multiprocessing`和`torch.distributed`为分布式所需要使用的包：
 ```
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     main()
 ```
 ---
-####②. 运行脚本
+#### ②. 运行脚本
 以两台机器，每台一卡为例，两台机器的控制台分别运行：
 ```
 python mnist_dist_py.py -n 2 -g 1 -nr 0 --epochs 5
@@ -223,9 +223,9 @@ export NCCL_DEBUG=INFO
 ![图片](http://bos.bj.bce-internal.sdns.baidu.com/agroup-bos-bj/bj-03456703e376ecb8da6bd6666d3a06e56d1e0f7e)
 
 
-###二、使用 torch.distributed.launch 启动分布式
+### 二、使用 torch.distributed.launch 启动分布式
 
-####①. 代码修改
+#### ①. 代码修改
 基于上述方法修改，我们将训练函数写在`if __name__ == '__main__':`后，添加`rank`和`local_rank`参数读取。删除整个`main`函数，不要保留`args`参数。
 
 对应的将代码中原本的`gpu`参数用`local_rank`替代，原本的`args.world_size`用`dist.get_world_size()`获取。
@@ -335,7 +335,7 @@ if __name__ == '__main__':
     if local_rank == 0:
         print("Training complete in: " + str(datetime.now() - start))
 ```
-####②. 运行脚本
+#### ②. 运行脚本
 以两台机器，每台一卡为例，两台机器的控制台分别运行：
 ```
 python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=0 --master_addr="172.16.16.5" --master_port=22222 mnist_dist.py
