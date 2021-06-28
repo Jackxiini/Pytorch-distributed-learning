@@ -11,6 +11,8 @@ Pytorch 1.x 的多机多卡计算模型并没有采用主流的 Parameter Server
 在 RingAllReduce 中，GPU 集群被组织成一个逻辑环，每个 GPU 只从左邻居接受数据、并发送数据给右邻居，即每次同步每个 GPU 只获得部分梯度更新，等一个完整的 Ring 完成，每个 GPU 都获得了完整的参数。通讯成本是系统中 GPU 之间最慢的连接决定的。
 
 原理图如下：
+
+
 ![bj-4a8f4ccb6d7c1099abbd168a8dbba1d12370ea8a](https://user-images.githubusercontent.com/35672492/123613396-f75f0d00-d835-11eb-9ad6-fddb6c34aa7c.png)
 ![bj-641e6112b5bb1f332146f2e2763f9c2ce6b0356e](https://user-images.githubusercontent.com/35672492/123613407-fa59fd80-d835-11eb-9e09-72a04437fa47.png)
 ![bj-b7eb6ee97dd909a9df0e56feb17b4fdeef0eed38](https://user-images.githubusercontent.com/35672492/123613424-fd54ee00-d835-11eb-89c9-4accee01a1b1.png)
