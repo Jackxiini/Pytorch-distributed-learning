@@ -61,7 +61,7 @@ import torch.distributed as dist
 ```
 
 2.写一个神经网络模型：
-```
+```python
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
@@ -86,7 +86,7 @@ class ConvNet(nn.Module):
 ```
 
 3.定义`main`函数：
-```
+```python
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--nodes', default=1,
@@ -118,7 +118,7 @@ def main():
 
 4.接下来，定义训练函数`train`，其中需要添加部分代码以实现分布式训练：
 
-```
+```python
 def train(gpu, args):
     rank = args.nr * args.gpus + gpu
     dist.init_process_group(
@@ -136,7 +136,7 @@ def train(gpu, args):
 `rank`为当前进程的编号。`rank=0`为主进程，即`master`节点。
 
 
-```
+```python
     torch.manual_seed(0)
     model = ConvNet()
     torch.cuda.set_device(gpu)
@@ -149,7 +149,7 @@ def train(gpu, args):
 
 `torch.manual_seed(0)`用来统一每个进程中随机部分，使得模型可以统一。
 
-```
+```python
     # Wrap the model
     model = nn.parallel.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu)
 
@@ -172,7 +172,7 @@ def train(gpu, args):
 `pin_memory=True`，则意味着生成的 Tensor 数据最开始是属于内存中的锁页内存，这样将内存的 Tensor 转义到 GPU 的显存就会更快一些。建议计算机内存充足时开启。
 
 主要训练部分：
-```
+```python
     start = datetime.now()
     total_step = len(train_loader)
     for epoch in range(args.epochs):
@@ -204,19 +204,19 @@ def train(gpu, args):
 
 
 5.最后：
-```
+```python
 if __name__ == '__main__':
     main()
 ```
 
 #### ②. 运行脚本
 以两台机器，每台一卡为例，两台机器的控制台分别运行：
-```
+```terminal
 python mnist_dist_py.py -n 2 -g 1 -nr 0 --epochs 5
 python mnist_dist_py.py -n 2 -g 1 -nr 1 --epochs 5
 ```
 如果需要查看NCCL通讯日志，则可输入
-```
+```terminal
 export NCCL_DEBUG=INFO
 ```
 以下是 master 节点所在机器上的日志效果图：
@@ -231,7 +231,7 @@ export NCCL_DEBUG=INFO
 对应的将代码中原本的`gpu`参数用`local_rank`替代，原本的`args.world_size`用`dist.get_world_size()`获取。
 
 `init_process_group`中参数只保留`backend`。以下为修改后的代码：
-```
+```python
 import os
 from datetime import datetime
 import torchvision
@@ -337,7 +337,7 @@ if __name__ == '__main__':
 ```
 #### ②. 运行脚本
 以两台机器，每台一卡为例，两台机器的控制台分别运行：
-```
+```terminal
 python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=0 --master_addr="172.16.16.5" --master_port=22222 mnist_dist.py
 
 python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=1 --master_addr="172.16.16.5" --master_port=22222 mnist_dist.py
