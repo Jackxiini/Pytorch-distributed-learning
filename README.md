@@ -337,7 +337,7 @@ if __name__ == '__main__':
 ```
 #### ②. 运行脚本
 以两台机器，每台一卡为例，两台机器的控制台分别运行：
-```
+```shell
 python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=0 --master_addr="172.16.16.5" --master_port=22222 mnist_dist.py
 
 python -m torch.distributed.launch --nproc_per_node=1 --nnodes=2 --node_rank=1 --master_addr="172.16.16.5" --master_port=22222 mnist_dist.py
